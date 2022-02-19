@@ -9,6 +9,7 @@ on: push
 
 env:
   REGISTRY: ghcr.io
+  IMAGE_NAME: sui
 
 jobs:
   build-and-push-go:
@@ -16,8 +17,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    env:
-      IMAGE_NAME: sui/go
 
     steps:
       - name: Checkout repository
@@ -42,15 +41,13 @@ jobs:
           context: ./go
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          labels: go:latest
 
   build-and-push-dashboard:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-    env:
-      IMAGE_NAME: sui/dashboard
 
     steps:
       - name: Checkout repository
@@ -75,4 +72,4 @@ jobs:
           context: ./dashboard
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          labels: dashboard:latest
