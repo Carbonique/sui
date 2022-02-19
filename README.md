@@ -1,4 +1,5 @@
 ## SUI
+
 *a startpage for your server and / or new tab page*
 
 ![screenshot](https://i.imgur.com/J4d7Q3D.png)
@@ -29,7 +30,7 @@ To run at a different port open edit docker-compose.yml:
  - build image `docker build -f DockerfilePullFromGit -t sui:latest .`
  - run image with `docker run -e GITURL='https://x:ghp_x@github.com/jeroenpardon/sui.git' -p 8081:80 sui:latest`
  - can be run also with a private repository by setting username:api-key@ in the url (see above example). Otherwise remove this part of the url.
- 
+
 
 
 ### Customization

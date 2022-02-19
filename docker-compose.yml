@@ -1,24 +1,31 @@
 version: "3.5"
+
 services:
+  dockerproxy:
+    image: tecnativa/docker-socket-proxy
+    container_name: dockerproxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "2375:2375"
+    environment:
+      CONTAINERS: 1
+
+  dashboardtool:
+    build: ./go/
+    environment:
+      DOCKER_HOST: tcp://dockerproxy:2375
+    depends_on:
+      - dockerproxy
+    volumes:
+      - config:/config
 
   sui:
-    container_name: sui
-    restart: always
-    build:
-      context: ./
-    environment:
-      - VIRTUAL_HOST=test.laserr.net
-    networks:
-      - nginx-proxy
-      - public
+    build: ./dashboard/
     ports:
-      - 4000:80
+      - "80:80"
     volumes:
-      - ./:/opt/html
+      - config:/app/dashboard/config
 
-networks:
-  nginx-proxy:
-    external: true
-  public:
-    external:
-      name: public
+volumes:
+  config:
