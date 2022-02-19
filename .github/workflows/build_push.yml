@@ -7,14 +7,13 @@ name: Create and publish a Docker image
 
 on: push
 
-
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build-and-push-image:
-    runs-on: ubuntu-latest
+    runs-on: alpine-latest
     permissions:
       contents: read
       packages: write
@@ -28,7 +27,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_PAT }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -41,4 +40,5 @@ jobs:
         with:
           context: ./go
           push: true
-          tags: test
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
