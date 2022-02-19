@@ -16,4 +16,5 @@ WORKDIR /app
 
 COPY --from=build /build/apps_discoverer apps_discoverer
 
-CMD ["/app/apps_discoverer"]
+ENTRYPOINT ["/app/apps_discoverer"]
+CMD ["--apps-config=/config/apps.json", "--check-interval=30"]

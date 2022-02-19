@@ -9,6 +9,8 @@ import (
   "github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"time"
+	"flag"
+	"strings"
 )
 
 type App struct {
@@ -21,18 +23,33 @@ type Apps struct {
   Apps []App `json:"apps"`
 }
 
-func main() {
-  filename := "/config/apps.json"
-  checkFileExists(filename)
+func main(){
+	filename := flag.String("apps-config", "/config/apps.json", "Location of apps.json file")
+	interval := flag.Int("check-interval", 30, "Interval in seconds for checking container labels")
+	flag.Parse()
+
+  checkFileExists(*filename)
 
 	for {
-    time.Sleep(10 * time.Second)
 		fmt.Println("Starting run")
-    go updateJson(filename)
+    go updateJson(*filename)
 		fmt.Println("Stopping run")
+		time.Sleep(time.Duration(*interval) * time.Second)
   }
 
 }
+
+func checkFileExists(filename string) error {
+    _, err := os.Stat(filename)
+        if os.IsNotExist(err) {
+            _, err := os.Create(filename)
+                if err != nil {
+                    return err
+                }
+        }
+        return nil
+}
+
 
 func updateJson(filename string){
 	  containers := getContainers()
@@ -41,6 +58,8 @@ func updateJson(filename string){
 		apps := Apps{apps_empty}
 
 	  for _, container := range containers {
+			fmt.Println("Found container with name:", strings.Trim(fmt.Sprint(container.Names), "/[]"))
+			//fmt.Printf(strings.Trim("Found container with name: %v", container.Names), "[]")
 	    app := App{}
 	    for key, value := range container.Labels{
 	      if key == "sui.app.name" {
@@ -62,21 +81,6 @@ func updateJson(filename string){
 	  writeJson(filename, apps)
 }
 
-func (apps *Apps) AddItem(app App) []App {
-	apps.Apps = append(apps.Apps, app)
-	return apps.Apps
-}
-
-func writeJson(filename string, apps Apps){
-  dat, err := json.MarshalIndent(apps, "", "    ")
-  if err != nil {
-    panic(err)
-  }
-
-  err = ioutil.WriteFile(filename, dat, 0644)
-
-}
-
 func getContainers() []types.Container {
   ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
@@ -93,13 +97,17 @@ func getContainers() []types.Container {
 
 }
 
-func checkFileExists(filename string) error {
-    _, err := os.Stat(filename)
-        if os.IsNotExist(err) {
-            _, err := os.Create(filename)
-                if err != nil {
-                    return err
-                }
-        }
-        return nil
+func (apps *Apps) AddItem(app App) []App {
+	apps.Apps = append(apps.Apps, app)
+	return apps.Apps
+}
+
+func writeJson(filename string, apps Apps){
+  dat, err := json.MarshalIndent(apps, "", "    ")
+  if err != nil {
+    panic(err)
+  }
+
+  err = ioutil.WriteFile(filename, dat, 0644)
+
 }
