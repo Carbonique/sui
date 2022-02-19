@@ -31,9 +31,15 @@ func main(){
   checkFileExists(*filename)
 
 	for {
+		fmt.Println()
 		fmt.Println("Starting run")
-    go updateJson(*filename)
+		fmt.Println("---------------------")
+		fmt.Println()
+    updateJson(*filename)
+		fmt.Println()
+		fmt.Println("---------------------")
 		fmt.Println("Stopping run")
+		fmt.Println()
 		time.Sleep(time.Duration(*interval) * time.Second)
   }
 
@@ -58,27 +64,34 @@ func updateJson(filename string){
 		apps := Apps{apps_empty}
 
 	  for _, container := range containers {
+			fmt.Println("---")
 			fmt.Println("Found container with name:", strings.Trim(fmt.Sprint(container.Names), "/[]"))
-			//fmt.Printf(strings.Trim("Found container with name: %v", container.Names), "[]")
-	    app := App{}
+			app := App{}
+
 	    for key, value := range container.Labels{
 	      if key == "sui.app.name" {
+					fmt.Printf("Container label sui.app.name: %s\n", value)
 	        app.Name = value
 	      }
 	      if key == "sui.app.url" {
 	        app.Url = value
+					fmt.Printf("Container label sui.app.url: %s\n", value)
 	      }
 	      if key == "sui.app.icon" {
 	        app.Icon = value
+					fmt.Printf("Container label sui.app.icon: %s\n", value)
 	      }
 	    }
-
 			if (App{}) != app  {
 	    	  apps.AddItem(app)
+			} else {
+				fmt.Println("Container has no sui labels")
 			}
+			fmt.Println("---")
 	  }
 
 	  writeJson(filename, apps)
+
 }
 
 func getContainers() []types.Container {
