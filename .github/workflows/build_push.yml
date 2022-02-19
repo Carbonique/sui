@@ -10,7 +10,7 @@ on: push
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: sui
-  
+
 jobs:
   build-and-push-go:
     runs-on: ubuntu-latest
@@ -40,8 +40,7 @@ jobs:
         with:
           context: ./go
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}:go
 
   build-and-push-dashboard:
     runs-on: ubuntu-latest
@@ -71,5 +70,4 @@ jobs:
         with:
           context: ./dashboard
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}:dashboard
