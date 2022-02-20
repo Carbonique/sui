@@ -1,9 +1,11 @@
+FROM alpine:3.15
 
-FROM busybox
+RUN apk add --no-cache busybox-extras
+
 
 WORKDIR /app/dashboard
-COPY . /app/dashboard
+COPY ./sui /app/dashboard/
 
 EXPOSE 80
 
-ENTRYPOINT [ "httpd", "-f", "-v", "-h", "/app/dashboard", "-u", "1000" ]
+ENTRYPOINT [ "httpd", "-f", "-v", "-h", "/app/dashboard", "-u", "1000"]
