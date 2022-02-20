@@ -4,7 +4,7 @@ RUN apk add --no-cache busybox-extras
 
 
 WORKDIR /app/dashboard
-COPY ./sui /app/dashboard/
+COPY ./content /app/dashboard/
 
 EXPOSE 80
 
