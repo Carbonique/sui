@@ -1,5 +1,10 @@
 ## SUI
 
+### Fork
+
+1. Removed Git auto update Dockerfile
+2. Added GitHub Actions workflow to push image to ghcr.io
+
 *a startpage for your server and / or new tab page*
 
 ![screenshot](https://i.imgur.com/J4d7Q3D.png)
