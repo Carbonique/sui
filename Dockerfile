@@ -1,5 +1,7 @@
 FROM alpine:3.15
 
+LABEL org.opencontainers.image.source https://github.com/carbonique/sui
+
 RUN apk add --no-cache busybox-extras
 
 WORKDIR /app/dashboard
