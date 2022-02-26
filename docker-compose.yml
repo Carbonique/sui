@@ -1,0 +1,11 @@
+version: "3.5"
+
+services:
+  sui:
+    container_name: sui
+    image: ghcr.io/carbonique/sui:1.0.0
+    restart: always
+    ports:
+      - 4000:80
+    volumes:
+      - ./:/opt/html

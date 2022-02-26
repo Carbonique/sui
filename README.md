@@ -1,8 +1,12 @@
 ## SUI
 
-### Fork
+*Also checkout [sui-auto-discovery](https://github.com/Carbonique/sui-auto-discovery) for automatically adding apps to SUI*
 
-1. Removed Git auto update Dockerfile
+## Fork
+
+### Changes
+
+1. Removed Git auto pull mode, as I consider this an antipattern for containers.
 2. Added GitHub Actions workflow to push image to ghcr.io
 
 *a startpage for your server and / or new tab page*
@@ -22,21 +26,6 @@
  - `git clone` this repository
  - Build and bring up with `docker-compose up -d`
  - The page should be available at  `http://localhost:4000`
-
-To run at a different port open edit docker-compose.yml:
-
-    ports:
-          - 4000:80
-
-#### Install pull from git variant:
-
- - refreshs source code every 5 minutes from master branch you provided - convenience feature for lacy devs
- - `git clone` this repository
- - build image `docker build -f DockerfilePullFromGit -t sui:latest .`
- - run image with `docker run -e GITURL='https://x:ghp_x@github.com/jeroenpardon/sui.git' -p 8081:80 sui:latest`
- - can be run also with a private repository by setting username:api-key@ in the url (see above example). Otherwise remove this part of the url.
-
-
 
 ### Customization
 
