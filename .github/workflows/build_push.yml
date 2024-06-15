@@ -1,53 +1,57 @@
-name: Create and publish Docker image
+name: Release to ghcr
 
 on:
-  push:
-    tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: sui
+  release:
+    types: [created]
 
 jobs:
-  build-and-push-go:
+  release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    strategy:
+      matrix:
+        arch: ["linux/amd64", "linux/arm64", "linux/arm/v7"]
+        include:
+        - arch-short: amd64
+          qemu-platform: amd64
+          arch: linux/amd64
+        - arch-short: arm64
+          qemu-platform: arm64
+          arch: linux/arm64
+        - arch-short: armv7
+          qemu-platform: arm
+          arch: linux/arm/v7
 
     steps:
+      - uses: actions/checkout@v3
 
       - name: Get latest tag
         id: vars
         run: echo ::set-output name=tag::${GITHUB_REF:10}
 
-      - name: Clone repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           ref: ${{ steps.vars.outputs.tag }}
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      - name: Docker Login
+        uses: docker/login-action@v2.1.0
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
         with:
-          platforms: arm64,arm
+          platforms: ${{ matrix.qemu-platform}}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/carbonique/${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.tag }}
-            ${{ env.REGISTRY }}/carbonique/${{ env.IMAGE_NAME }}:latest
+      - name: Build rootfs
+        run: sudo ./scripts/build.sh ${{ matrix.arch }}
+
+      - name: Install plugin
+        run: sudo ./scripts/install.sh ${{ steps.vars.outputs.tag }}-${{ matrix.arch-short}}
+
+      - name: Push plugin
+        run: docker plugin push ghcr.io/carbonique/sui:${{ steps.vars.outputs.tag }}-${{ matrix.arch-short}}
